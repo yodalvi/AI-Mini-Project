@@ -48,28 +48,48 @@ Check it's alive:
 docker ps
 ```
 ### Step 6 — Test the API
-$body = @(
-    @{
-        distance_km = 4.5
-        prep_time_min = 15
-        rider_available = 1
-        is_raining = 1
-    },
-    @{
-        distance_km = 2
-        prep_time_min = 10
-        rider_available = 1
-        is_raining = 0
-    },
-    @{
-        distance_km = 8
-        prep_time_min = 20
-        rider_available = 0
-        is_raining = 1
-    }
-) | ConvertTo-Json -Depth 3
-Invoke-RestMethod `
--Uri "http://localhost:8000/batch_predict" `
--Method Post `
--ContentType "application/json" `
--Body $body
+**Option A — curl:**
+### Batch Prediction
+
+```bash
+curl -X POST "http://localhost:8000/batch_predict" \
+-H "Content-Type: application/json" \
+-d '[
+  {
+    "distance_km": 4.5,
+    "prep_time_min": 15,
+    "rider_available": 1,
+    "is_raining": 1
+  },
+  {
+    "distance_km": 2,
+    "prep_time_min": 10,
+    "rider_available": 1,
+    "is_raining": 0
+  },
+  {
+    "distance_km": 8,
+    "prep_time_min": 20,
+    "rider_available": 0,
+    "is_raining": 1
+  }
+]'
+```
+
+**Option B — Swagger UI (best for live demos):**
+Open **http://localhost:8000/docs** in your browser, expand `POST /batch_predict`
+
+### Step 7 — Explore the running container (optional, great demo moment)
+```bash
+docker logs -f eta-service          # watch live logs (Ctrl+C to exit)
+docker exec -it eta-service bash    # step INSIDE the container
+  ls                                # you'll see app.py, eta_model.pkl, etc.
+  cat app.py
+  exit
+```
+### Step 8 — Clean up
+```bash
+docker stop eta-service
+docker rm eta-service
+docker rmi quickbite-eta:v1         # optional: also delete the image
+```
